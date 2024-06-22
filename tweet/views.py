@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from .forms import TweetForm
+from .forms import TweetForm,SearchForm
 from .models import Tweet
-
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 
 # Create your views here.
@@ -46,3 +46,23 @@ def tweet_delete(request, tweet_id):
         tweet.delete()
         return redirect('tweet_list')
     return render(request, 'tweet_confirm_delete.html', {'tweet':tweet})
+
+
+def search_list(request):
+    form = SearchForm()
+    query = None
+    results =[]
+
+    if 'query' in request.GET:
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            results= Tweet.objects.filter(text__icontains=query).order_by('-create_at')
+    return render(request, 'search.html', {'form':form , 'query':query , 'results':results})
+
+
+
+
+
+
+
